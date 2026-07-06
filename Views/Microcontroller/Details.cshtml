@@ -1,0 +1,148 @@
+@model IoTDeviceManager.Models.Microcontroller
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Microcontroller</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.MACAddress)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.MACAddress)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ChipModel)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ChipModel)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FirmwareVersion)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FirmwareVersion)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.LastSeenAt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.LastSeenAt)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Site)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Site.SiteName)
+        </dd>
+    </dl>
+</div>
+<hr />
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Attached Sensor Modules (Hardware Mapping)</h3>
+    <a asp-controller="DeviceConfigurations" asp-action="Create" asp-route-mcuId="@Model.Id" class="btn btn-success">
+        Attach New Sensor
+    </a>
+</div>
+
+@if (Model.DeviceConfigurations != null && Model.DeviceConfigurations.Any(dc => dc.IsActive))
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-secondary">
+        <tr>
+            <th>Sensor Type</th>
+            <th>Pin / Connection Configuration</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var config in Model.DeviceConfigurations.Where(dc => dc.IsActive))
+        {
+            <tr>
+                <td>@config.SensorModule?.SensorType (@config.SensorModule?.Manufacturer)</td>
+                <td><code>@config.DataPin</code></td>
+                <td>
+                    <a asp-controller="DeviceConfigurations" asp-action="Decommission" asp-route-id="@config.Id" class="btn btn-sm btn-outline-danger">Disconnect</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    
+    
+}
+else
+{
+    <div class="alert alert-info">No sensors are currently wired to this microcontroller.</div>
+}
+
+<hr class="my-5" />
+
+@{
+    if (User.IsInRole("Admin"))
+    {
+        <form asp-controller="Telemetry" asp-action="ClearAll" asp-route-microcontrollerId="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to wipe test telemetry data for this device?');">
+                Clear Test Data
+            </button>
+        </form>   
+    }
+    
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Device Telemetry & Event Logs</h3>
+    <span class="badge bg-secondary">Showing latest entries</span>
+</div>
+
+@if (Model.TelemetryLogs != null && Model.TelemetryLogs.Any())
+{
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark sticky-top">
+            <tr>
+                <th style="width: 20%">Timestamp</th>
+                <th style="width: 15%">Severity</th>
+                <th style="width: 65%">Log Payload</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var log in Model.TelemetryLogs.OrderByDescending(l => l.Timestamp))
+            {
+                <tr>
+                    <td class="text-muted">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>
+                        @if (log.Severity == SeverityLevel.Error)
+                        {
+                            <span class="badge bg-danger text-white w-100">ERROR</span>
+                        }
+                        else if (log.Severity == SeverityLevel.Warning)
+                        {
+                            <span class="badge bg-warning text-dark w-100">WARNING</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info text-dark w-100">INFO</span>
+                        }
+                    </td>
+                    <td><string class="fw-normal">@log.Payload</string></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary">No telemetry payloads have been recorded by this microcontroller yet.</div>
+}
+@* to here *@
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

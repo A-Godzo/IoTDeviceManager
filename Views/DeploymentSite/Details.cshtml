@@ -1,0 +1,91 @@
+@model IoTDeviceManager.Models.DeploymentSite
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>DeploymentSite</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SiteName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SiteName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PhysicalAddress)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PhysicalAddress)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NetworkSubnet)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NetworkSubnet)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsActive)
+        </dt>
+        <dd class = "col-sm-10">
+            @{
+                if (Model.IsActive)
+                {
+                    <span>Active</span>
+                }
+                else
+                {
+                    <span>Inactive</span>
+                }
+            }
+        </dd>
+    </dl>
+</div>
+<div class="mb-3">
+    <a asp-controller="Microcontroller" asp-action="CreateForSite" asp-route-siteId="@Model.Id" class="btn btn-primary">
+        + Add Microcontroller to This Site
+    </a>
+</div>
+<hr />
+<h3>Deployed Microcontrollers</h3>
+
+@if (Model.Microcontrollers != null && Model.Microcontrollers.Any())
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>MAC Address</th>
+            <th>Chip Model</th>
+            <th>Firmware</th>
+            <th>Last Seen</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var device in Model.Microcontrollers)
+        {
+            <tr>
+                <td>@device.MACAddress</td>
+                <td>@device.ChipModel</td>
+                <td>@device.FirmwareVersion</td>
+                <td>@device.LastSeenAt?.ToString("g")</td>
+                <td>
+                    <a asp-controller="Microcontroller" asp-action="Details" asp-route-id="@device.Id" class="btn btn-sm btn-info">View</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">No microcontrollers are currently deployed at this site.</div>
+}
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
