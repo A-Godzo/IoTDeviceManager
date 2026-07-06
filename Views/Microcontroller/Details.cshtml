@@ -43,12 +43,20 @@
     </dl>
 </div>
 <hr />
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Attached Sensor Modules (Hardware Mapping)</h3>
-    <a asp-controller="DeviceConfigurations" asp-action="Create" asp-route-mcuId="@Model.Id" class="btn btn-success">
-        Attach New Sensor
-    </a>
-</div>
+
+@{
+    if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Attached Sensor Modules (Hardware Mapping)</h3>
+            <a asp-controller="DeviceConfigurations" asp-action="Create" asp-route-mcuId="@Model.Id" class="btn btn-success">
+                Attach New Sensor
+            </a>
+        </div>    
+    }
+}
+
+
 
 @if (Model.DeviceConfigurations != null && Model.DeviceConfigurations.Any(dc => dc.IsActive))
 {
@@ -67,7 +75,12 @@
                 <td>@config.SensorModule?.SensorType (@config.SensorModule?.Manufacturer)</td>
                 <td><code>@config.DataPin</code></td>
                 <td>
-                    <a asp-controller="DeviceConfigurations" asp-action="Decommission" asp-route-id="@config.Id" class="btn btn-sm btn-outline-danger">Disconnect</a>
+                    @{
+                        if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+                        {
+                            <a asp-controller="DeviceConfigurations" asp-action="Decommission" asp-route-id="@config.Id" class="btn btn-sm btn-outline-danger">Disconnect</a>
+                        }
+                    }
                 </td>
             </tr>
         }
@@ -141,8 +154,15 @@ else
 {
     <div class="alert alert-secondary">No telemetry payloads have been recorded by this microcontroller yet.</div>
 }
-@* to here *@
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+@{
+    if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+    if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> <span>|</span>
+        
+    }
+}
     <a asp-action="Index">Back to List</a>
 </div>

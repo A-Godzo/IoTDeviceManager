@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace IoTDeviceManager.Controllers
 {
-    [Authorize(Roles = "Admin,Technician,Viewer")]
+    [Authorize(Roles = "Admin,Technician")]
     public class SensorModuleController : Controller
     {
         private readonly ApplicationDbContext _context;

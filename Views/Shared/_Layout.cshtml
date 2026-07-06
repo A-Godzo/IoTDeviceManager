@@ -26,9 +26,16 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Microcontroller" asp-action="Index">Microcontrollers</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="SensorModule" asp-action="Index">Sensors</a>
-                    </li>
+                    @{
+                        if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="SensorModule" asp-action="Index">Sensors</a>
+                            </li>
+                        }
+                        
+                    }
+                    
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>
