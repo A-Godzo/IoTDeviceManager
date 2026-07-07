@@ -28,13 +28,13 @@ public class TelemetryController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostReading([FromBody] TelemetryPayload payload)
     {
-        // 1. Validation: Reject completely empty payloads
+        // frli prazni 
         if (payload == null || string.IsNullOrEmpty(payload.MacAddress) || string.IsNullOrEmpty(payload.DataPin))
         {
             return BadRequest(new { message = "Invalid data packet structure." });
         }
 
-        // 2. Hardware Verification: Does this microcontroller exist in our system?
+        // postojt microcont
         var mcu = await _context.Microcontrollers
             .FirstOrDefaultAsync(m => m.MACAddress == payload.MacAddress);
 
@@ -47,15 +47,15 @@ public class TelemetryController : ControllerBase
             .Where(dc => dc.MicrocontrollerId == mcu.Id)
             .ToListAsync();
 
-        Console.WriteLine($"\n🔍 [DIAGNOSTIC] Found {dbConfigs.Count} total configurations for MCU ID {mcu.Id}:");
+        
         foreach (var config in dbConfigs)
         {
             Console.WriteLine($"   -> Config ID: {config.Id} | Pin in DB: '{config.DataPin}' (Length: {config.DataPin?.Length}) | IsActive: {config.IsActive}");
         }
         Console.WriteLine($"   -> Python Sent Pin: '{payload.DataPin}' (Length: {payload.DataPin?.Length})\n");
-// 👆 END OF DIAGNOSTIC BLOCK 👆
 
-        // 3. Configuration Verification: Is there a sensor actually wired to this pin?
+
+        // 3. postojt senzor povrzan na toj pin
         var activeConfig = await _context.DeviceConfigurations
             .Include(dc => dc.SensorModule)
             .FirstOrDefaultAsync(dc => dc.MicrocontrollerId == mcu.Id 
@@ -67,12 +67,10 @@ public class TelemetryController : ControllerBase
             return BadRequest(new { message = $"Hardware Mismatch! MAC {payload.MacAddress} has no active sensor mapped to pin '{payload.DataPin}'." });
         }
 
-        // 4. Update the Microcontroller's "Last Seen" timestamp
+        // 4. update timestampot
         mcu.LastSeenAt = DateTime.UtcNow;
         _context.Update(mcu);
 
-        // 5. Success! For now, we will log it to the server console.
-        // Console.WriteLine($"[Telemetry Received] Site ID: {mcu.DeploymentSiteId} | MCU: {mcu.ChipModel} | Sensor: {activeConfig.SensorModule?.SensorType} on {payload.DataPin} | Value: {payload.SensorValue}");
         string logPayload = $"Sensor on pin {payload.DataPin} reported value: {payload.SensorValue}";
         
         SeverityLevel logSeverity = SeverityLevel.Info;
@@ -82,7 +80,7 @@ public class TelemetryController : ControllerBase
         }
         
 
-        // 6. Instantiate your exact TelemetryLog model
+        // 5. sostavi telelog i pikni vo baza
         var telemetryLog = new TelemetryLog
         {
             MicrocontrollerId = mcu.Id,
@@ -94,8 +92,8 @@ public class TelemetryController : ControllerBase
         _context.TelemetryLogs.Add(telemetryLog); 
         await _context.SaveChangesAsync();
 
-// Existing console print statement
-        _context.TelemetryLogs.Add(telemetryLog); // (Assumes your DbSet is named TelemetryLogs)
+
+        _context.TelemetryLogs.Add(telemetryLog); 
         await _context.SaveChangesAsync();
 
         Console.WriteLine($"[Saved to DB] MCU ID: {mcu.Id} | Severity: {logSeverity} | {logPayload}");
@@ -109,14 +107,14 @@ public class TelemetryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ClearAll(int microcontrollerId)
     {
-        // 1. Find only the logs belonging to this specific microcontroller
+        
         var deviceLogs = _context.TelemetryLogs.Where(l => l.MicrocontrollerId == microcontrollerId);
     
-        // 2. Wipe them out
+        
         _context.TelemetryLogs.RemoveRange(deviceLogs);
         await _context.SaveChangesAsync();
     
-        // 3. Explicitly redirect back to: /Microcontrollers/Details/{id}
+        
         return RedirectToAction("Details", "Microcontroller", new { id = microcontrollerId });
     }
 }

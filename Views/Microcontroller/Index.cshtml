@@ -59,7 +59,7 @@
                     }
                     else
                     {
-                        <span>@item.DeviceConfigurations.Count</span>
+                        <span>@item.DeviceConfigurations.Count(dc => dc.IsActive)</span>
                     }
                 }
             </td>
