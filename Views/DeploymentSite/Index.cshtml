@@ -56,6 +56,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
+            <th>
+                Connected 
+                Microcontrollers
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -80,6 +84,18 @@
                     else
                     {
                         <span>Inactive</span>
+                    }
+                }
+            </td>
+            <td>
+                @{
+                    if (item.Microcontrollers == null)
+                    {
+                        <span>0</span>
+                    }
+                    else
+                    {
+                        <span>@item.Microcontrollers.Count()</span>
                     }
                 }
             </td>

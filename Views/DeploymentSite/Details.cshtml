@@ -81,6 +81,16 @@
                 <td>@device.LastSeenAt?.ToString("g")</td>
                 <td>
                     <a asp-controller="Microcontroller" asp-action="Details" asp-route-id="@device.Id" class="btn btn-sm btn-info">View</a>
+                @{
+                    if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+                    {
+                        <form asp-controller="Microcontroller" asp-action="DeleteFromSite" asp-route-id="@device.Id" asp-route-siteId="@Model.Id" method="post" class="d-inline ms-1">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to permanently delete this microcontroller and all its logs?');">
+                                Remove
+                            </button>
+                        </form>
+                    }
+                }
                 </td>
             </tr>
         }

@@ -149,6 +149,23 @@ namespace IoTDeviceManager.Controllers
             ViewData["DeploymentSiteId"] = new SelectList(_context.DeploymentSites, "Id", "SiteName", microcontroller.DeploymentSiteId);
             return View(microcontroller);
         }
+        
+        // POST: Microcontrollers/DeleteFromSite
+        [HttpPost]
+        [Authorize(Roles = "Admin,Technician")] // 🔐 Protect this action from Viewers!
+        public async Task<IActionResult> DeleteFromSite(int id, int siteId)
+        {
+            
+            var microcontroller = await _context.Microcontrollers.FindAsync(id);
+    
+            if (microcontroller != null)
+            {
+                _context.Microcontrollers.Remove(microcontroller);
+                await _context.SaveChangesAsync();
+            }
+            
+            return RedirectToAction("Details", "DeploymentSite", new { id = siteId });
+        }
 
         // GET: Microcontroller/Delete/5
         public async Task<IActionResult> Delete(int? id)

@@ -27,6 +27,7 @@ namespace IoTDeviceManager.Controllers
 
             var deploymentSites = await _context.DeploymentSites
                 .Where(s=>(siteName == null || s.SiteName.Contains(siteName)))
+                .Include(m => m.Microcontrollers)
                 .ToListAsync();
             
                 if (active == "Active")
