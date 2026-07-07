@@ -27,6 +27,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Site)
             </th>
+            <th>
+                Connected Sensor Modules
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -49,9 +52,26 @@
                 @Html.DisplayFor(modelItem => item.Site.SiteName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @{
+                    if (item.DeviceConfigurations == null)
+                    {
+                        <span>0</span>
+                    }
+                    else
+                    {
+                        <span>@item.DeviceConfigurations.Count</span>
+                    }
+                }
+            </td>
+            <td>
+                @{
+                    if (User.IsInRole("Admin") || User.IsInRole("Technician"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                }
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
 }

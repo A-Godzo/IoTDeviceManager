@@ -48,7 +48,19 @@
     if (User.IsInRole("Admin") || User.IsInRole("Technician"))
     {
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>Attached Sensor Modules (Hardware Mapping)</h3>
+            <h3>Attached Sensor Modules 
+                @{
+                    if (Model.DeviceConfigurations == null)
+                    {
+                        <span>[0]</span>
+                    }
+                    else
+                    {
+                        <span>[@Model.DeviceConfigurations.Count]</span>
+                    }
+                }
+                
+                (Hardware Mapping)</h3>
             <a asp-controller="DeviceConfigurations" asp-action="Create" asp-route-mcuId="@Model.Id" class="btn btn-success">
                 Attach New Sensor
             </a>

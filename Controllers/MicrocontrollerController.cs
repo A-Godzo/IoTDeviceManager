@@ -24,7 +24,10 @@ namespace IoTDeviceManager.Controllers
         // GET: Microcontroller
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Microcontrollers.Include(m => m.Site);
+            var applicationDbContext = _context.Microcontrollers
+                .Include(m => m.Site)
+                .Include(s => s.DeviceConfigurations);
+            
             return View(await applicationDbContext.ToListAsync());
         }
 
